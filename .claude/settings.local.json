@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:nakamasato.medium.com)",
+      "WebFetch(domain:jsr.io)",
+      "Bash(nmake clean:*)",
+      "Bash(nmake:*)"
+    ],
+    "deny": []
+  }
+}

@@ -3,12 +3,16 @@
 #include "tts_speaker.h"
 #include "json_parser.h"
 
-std::string GenerateNotificationMessage(const std::string& sessionId, const std::string& message) {
+std::string GenerateNotificationMessage(const std::string& sessionId, const std::string& message, const std::string& hookEventName) {
     size_t maxLen = 8;
     if (sessionId.length() < maxLen) {
         maxLen = sessionId.length();
     }
     std::string shortSessionId = sessionId.substr(0, maxLen);
+    
+    if (hookEventName == "Stop") {
+        return "Session " + shortSessionId + " has stopped.";
+    }
     
     if (message.find("waiting for your input") != std::string::npos) {
         return "Session " + shortSessionId + " is waiting for your input.";
@@ -39,7 +43,7 @@ int main() {
         return 1;
     }
     
-    std::string notificationMessage = GenerateNotificationMessage(data.session_id, data.message);
+    std::string notificationMessage = GenerateNotificationMessage(data.session_id, data.message, data.hook_event_name);
     
     if (!speaker.Speak(notificationMessage)) {
         std::cerr << "Failed to speak notification" << std::endl;

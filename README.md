@@ -14,6 +14,7 @@ A Windows command-line application that provides voice notifications for Claude 
 - **Multiple Message Types**: Handles various notification scenarios:
   - User input waiting
   - Tool permission requests
+  - Agent response completion (Stop hook)
   - General notifications
 
 ## Installation
@@ -55,6 +56,16 @@ Add the following configuration to your Claude Code settings file (typically `~/
 {
   "hooks": {
     "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:\\path\\to\\claudecode-notifier\\claudecode-notifier.exe"
+          }
+        ]
+      }
+    ],
+    "Stop": [
       {
         "hooks": [
           {
@@ -108,6 +119,16 @@ If you're using Claude Code from within WSL2, you can still use this Windows exe
              }
            ]
          }
+       ],
+       "Stop": [
+         {
+           "hooks": [
+             {
+               "type": "command",
+               "command": "/home/yourusername/.local/bin/claudecode-notifier"
+             }
+           ]
+         }
        ]
      }
    }
@@ -139,9 +160,14 @@ The application generates different voice messages based on the notification con
 
 - **Input Waiting**: "Session [ID] is waiting for your input."
 - **Permission Request**: "Session [ID] needs permission to use a tool."
+- **Response Completion**: "Session [ID] has stopped."
 - **General Notification**: "Session [ID] has a notification."
 
 Session IDs are truncated to the first 8 characters for brevity.
+
+### Stop Hook Benefits
+
+The Stop hook runs immediately when the Claude Code agent finishes its response, providing faster notifications than waiting for the standard "waiting for user input" message (which typically appears after a 60-second delay). This allows you to be notified as soon as the agent has completed its response and is ready for your next input, improving workflow efficiency when managing multiple sessions.
 
 ## Project Structure
 

@@ -14,6 +14,7 @@ Claude Code のフック機能と連携し、音声通知を行う Windows 用�
 - **複数メッセージタイプ対応**:
   - ユーザー入力待ち
   - ツール使用許可要求
+  - エージェント応答完了（Stopフック）
   - 一般的な通知
 
 ## インストール
@@ -55,6 +56,16 @@ Claude Code 設定ファイル（通常は `~/.claude/settings.json`）に以下
 {
   "hooks": {
     "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:\\path\\to\\claudecode-notifier\\claudecode-notifier.exe"
+          }
+        ]
+      }
+    ],
+    "Stop": [
       {
         "hooks": [
           {
@@ -108,6 +119,16 @@ WSL2 内で Claude Code を使用している場合でも、この Windows 実�
              }
            ]
          }
+       ],
+       "Stop": [
+         {
+           "hooks": [
+             {
+               "type": "command",
+               "command": "/home/yourusername/.local/bin/claudecode-notifier"
+             }
+           ]
+         }
        ]
      }
    }
@@ -139,9 +160,14 @@ echo {"session_id":"test123","message":"Claude is waiting for your input","hook_
 
 - **入力待ち**: "Session [ID] is waiting for your input."
 - **許可要求**: "Session [ID] needs permission to use a tool."
+- **応答完了**: "Session [ID] has stopped."
 - **一般通知**: "Session [ID] has a notification."
 
 セッション ID は簡潔性のため最初の8文字に短縮されます。
+
+### Stopフックの利点
+
+Stopフックは Claude Code エージェントが応答を完了した時点で即座に実行されるため、通常の「ユーザー入力待ち」メッセージ（通常60秒後に表示）よりも早い通知を受け取ることができます。これによりエージェントが応答を完了して次の入力を受け付ける準備が整ったことをすぐに知ることができ、複数セッション管理時のワークフロー効率が向上します。
 
 ## プロジェクト構成
 

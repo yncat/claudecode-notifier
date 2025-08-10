@@ -36,6 +36,10 @@ A Windows command-line application that provides voice notifications for Claude 
 nmake all
 ```
 
+#### Architecture Considerations
+
+On Windows, SAPI 5 engines are managed separately for 32-bit and 64-bit architectures. If you build this program as a 32-bit application, it can only use 32-bit SAPI 5 engines. Similarly, when built as a 64-bit application, it can only use 64-bit compatible SAPI 5 engines. If you have a specific SAPI 5 voice engine you want to use, you need to build with the matching architecture. Our automated releases build and publish both versions for maximum compatibility.
+
 ### Testing
 
 To test the application:

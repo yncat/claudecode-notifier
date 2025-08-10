@@ -1,0 +1,133 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build_x86:
+    name: Build x86
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Visual Studio x86
+      uses: microsoft/setup-msbuild@v2
+      with:
+        vs-version: '[17.0,18.0)'
+
+    - name: Setup x86 Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x86
+
+    - name: Build with nmake
+      run: nmake all
+
+    - name: Package x86 release
+      run: |
+        mkdir release-x86
+        copy claudecode-notifier.exe release-x86\
+        copy README.md release-x86\
+        copy README_ja.md release-x86\
+        
+    - name: Create x86 zip archive
+      run: |
+        7z a claudecode-notifier-x86.zip release-x86\*
+
+    - name: Upload x86 artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: claudecode-notifier-x86
+        path: claudecode-notifier-x86.zip
+
+  build_x64:
+    name: Build x64
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Visual Studio x64
+      uses: microsoft/setup-msbuild@v2
+      with:
+        vs-version: '[17.0,18.0)'
+
+    - name: Setup x64 Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Build with nmake
+      run: nmake all
+
+    - name: Package x64 release
+      run: |
+        mkdir release-x64
+        copy claudecode-notifier.exe release-x64\
+        copy README.md release-x64\
+        copy README_ja.md release-x64\
+        
+    - name: Create x64 zip archive
+      run: |
+        7z a claudecode-notifier-x64.zip release-x64\*
+
+    - name: Upload x64 artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: claudecode-notifier-x64
+        path: claudecode-notifier-x64.zip
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [build_x86, build_x64]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download x86 artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: claudecode-notifier-x86
+        path: ./artifacts
+
+    - name: Download x64 artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: claudecode-notifier-x64
+        path: ./artifacts
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: Release ${{ github.ref_name }}
+        tag_name: ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+        files: |
+          ./artifacts/claudecode-notifier-x86.zip
+          ./artifacts/claudecode-notifier-x64.zip
+        body: |
+          ## Claude Code Notifier ${{ github.ref_name }}
+          
+          Windows command-line application that provides voice notifications for Claude Code hooks.
+          
+          ### Downloads
+          - **claudecode-notifier-x86.zip**: 32-bit Windows build
+          - **claudecode-notifier-x64.zip**: 64-bit Windows build
+          
+          ### Installation
+          1. Download the appropriate zip file for your system
+          2. Extract the files to a directory of your choice
+          3. Configure Claude Code hooks as described in the README.md
+          
+          ### What's New
+          See the commit history for changes in this release.
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
